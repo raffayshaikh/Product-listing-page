@@ -3,11 +3,16 @@ import Products from '../assets/Product';
 import DescriptionWithReadMore from './Desciption';
 import category from '../assets/Categories';
 
-const Home = () => {
+
+
+const Home = ({setCart }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortOrder, setSortOrder] = useState('');
   const [filteredProducts, setFilteredProducts] = useState(Products);
+
+  
+  
 
   useEffect(() => {
     let filtered = [...Products];
@@ -35,6 +40,29 @@ const Home = () => {
 
     setFilteredProducts(filtered);
   }, [searchQuery, selectedCategory, sortOrder]);
+
+  const addToCart = (product) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.id === product.id);
+      let updatedCart;
+  
+      if (existingItem) {
+        // If the item exists, increment its quantity by 1
+        updatedCart = prevCart.map(item =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        // If it's a new item, add it to the cart with quantity 1
+        updatedCart = [...prevCart, { ...product, quantity: 1 }];
+      }
+  
+      // Save the updated cart to localStorage
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      return updatedCart;
+    });
+  };
+  
+  
 
   return (
     <div className='flex max-w-7xl mx-auto justify-center flex-col'>
@@ -86,9 +114,13 @@ const Home = () => {
             </div>
             <p className='text-lg font-semibold my-1'>${item.price}</p>
             <DescriptionWithReadMore text={item.description} />
-            <button className='mt-2 w-full rounded-md bg-amber-300 text-black text-xl py-1' type="button">
-              ADD TO Cart
-            </button>
+            <button
+  className='mt-2 w-full rounded-md bg-amber-300 text-black text-xl py-1'
+  type="button"
+  onClick={() => addToCart(item)}
+>
+  ADD TO Cart
+</button>
           </div>
         ))}
         </div>
